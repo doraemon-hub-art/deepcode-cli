@@ -97,6 +97,21 @@ export async function handleWriteTool(
         const encoding = existingMetadata?.encoding ?? "utf8";
         const lineEndings = existingMetadata?.lineEndings ?? (input.content.includes("\r\n") ? "CRLF" : "LF");
         const diffPreview = buildDiffPreview(filePath, existingMetadata?.content ?? null, normalizedContent);
+        if (context.onConfirmFileMutation) {
+          const confirmed = await context.onConfirmFileMutation(
+            filePath,
+            existingMetadata?.content ?? null,
+            normalizedContent,
+            diffPreview
+          );
+          if (!confirmed) {
+            return {
+              ok: false,
+              name: "write",
+              error: `Write rejected by user: ${filePath}`,
+            };
+          }
+        }
         context.onBeforeFileMutation?.(filePath);
         const bytes = writeTextFile(filePath, normalizedContent, encoding, lineEndings);
         context.onAfterFileMutation?.(filePath);

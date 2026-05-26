@@ -321,6 +321,16 @@ export async function handleEditTool(
 
         const updated = applyReplacement(raw, replacementOldString, replacementNewString, matches, replaceAll);
         const diffPreview = buildDiffPreview(filePath, raw, updated);
+        if (context.onConfirmFileMutation) {
+          const confirmed = await context.onConfirmFileMutation(filePath, raw, updated, diffPreview);
+          if (!confirmed) {
+            return {
+              ok: false,
+              name: "edit",
+              error: `Edit rejected by user: ${filePath}`,
+            };
+          }
+        }
         context.onBeforeFileMutation?.(filePath);
         writeTextFile(filePath, updated, metadata.encoding, metadata.lineEndings);
         context.onAfterFileMutation?.(filePath);

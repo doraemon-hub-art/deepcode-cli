@@ -42,6 +42,12 @@ export type ToolExecutionContext = {
   onProcessTimeoutControl?: (processId: string | number, control: ProcessTimeoutControl | null) => void;
   onBeforeFileMutation?: (filePath: string) => void;
   onAfterFileMutation?: (filePath: string) => void;
+  onConfirmFileMutation?: (
+    filePath: string,
+    oldContent: string | null,
+    newContent: string,
+    diffPreview: string | null
+  ) => Promise<boolean>;
   bashTimeoutMs?: number;
   bashMinTimeoutMs?: number;
 };
